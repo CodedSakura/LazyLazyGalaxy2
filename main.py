@@ -4,7 +4,7 @@ import PIL.Image
 from PIL import ImageGrab, ImageChops, ImageDraw
 from xdo import Xdo
 
-waitTime = 1.0
+waitTime = 1.2
 interval = .2
 asteroidBBox = [130, 220, 130 + 1680, 220 + 240]
 
@@ -86,9 +86,9 @@ def find_asteroid(pixels, pos, size):
 
 def start():
     lg2asteroid_box = setup()
-    counter = 10
+    counter = 0
 
-    while counter > 0:
+    while counter < 10:
         sleep(waitTime)
         pxa = ImageGrab.grab(lg2asteroid_box)
         sleep(interval)
@@ -111,17 +111,17 @@ def start():
                     asteroids.append(find_asteroid(pixels, (x, y), (diff.width, diff.height)))
 
         # print(len(asteroids))
-        # overlay = PIL.Image.blend(pxa, diff.resize((pxa.width, pxa.height), PIL.Image.NEAREST).convert("RGB"), .5)
-        # overlay_draw = ImageDraw.Draw(overlay)
+        overlay = PIL.Image.blend(pxa, diff.resize((pxa.width, pxa.height), PIL.Image.NEAREST).convert("RGB"), .5)
+        overlay_draw = ImageDraw.Draw(overlay)
         for a in asteroids:
-            # overlay_draw.rectangle([a[0]*8, a[1]*8, a[2]*8, a[3]*8], outline=(0, 255, 0), width=2)
+            overlay_draw.rectangle([a[0]*8, a[1]*8, a[2]*8, a[3]*8], outline=(0, 255, 0), width=2)
             aavg = [(a[0] + a[2])*4, (a[1] + a[3])*4]
-            # overlay_draw.ellipse([aavg[0] - 4, aavg[1] - 4, aavg[0] + 4, aavg[1] + 4], outline=(255, 0, 0), width=2)
+            overlay_draw.ellipse([aavg[0] - 4, aavg[1] - 4, aavg[0] + 4, aavg[1] + 4], outline=(255, 0, 0), width=2)
             xdo.move_mouse(lg2asteroid_box[0] + aavg[0], lg2asteroid_box[1] + aavg[1])
             xdo.click_window_multiple(lg2, 1, 4, 20*1000)
-        # overlay.show()
+        overlay.save(f"/tmp/{counter}.png", "png")
         # break
-        counter -= 1
+        counter += 1
 
 
 if __name__ == '__main__':
